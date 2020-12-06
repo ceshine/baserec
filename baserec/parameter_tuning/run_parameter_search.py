@@ -92,7 +92,7 @@ def run_search_collaborative(recommender_class, URM_train, URM_train_last_test=N
 
         output_file_name_root = recommender_class.RECOMMENDER_NAME
 
-        parameterSearch = SearchBayesianSkopt(
+        parameter_searcher = SearchBayesianSkopt(
             recommender_class, evaluator_validation=evaluator_validation, evaluator_test=evaluator_test)
 
         if recommender_class in [TopPop, GlobalEffects, Random]:
@@ -100,7 +100,7 @@ def run_search_collaborative(recommender_class, URM_train, URM_train_last_test=N
             TopPop, GlobalEffects and Random have no parameters therefore only one evaluation is needed
             """
 
-            parameterSearch = SearchSingleCase(
+            parameter_searcher = SearchSingleCase(
                 recommender_class, evaluator_validation=evaluator_validation, evaluator_test=evaluator_test)
 
             recommender_input_args = SearchInputRecommenderArgs(
@@ -116,15 +116,15 @@ def run_search_collaborative(recommender_class, URM_train, URM_train_last_test=N
             else:
                 recommender_input_args_last_test = None
 
-            parameterSearch.search(recommender_input_args,
-                                   recommender_input_args_last_test=recommender_input_args_last_test,
-                                   fit_hyperparameters_values={},
-                                   output_folder_path=output_folder_path,
-                                   output_file_name_root=output_file_name_root,
-                                   resume_from_saved=resume_from_saved,
-                                   save_model=save_model,
-                                   evaluate_on_test=evaluate_on_test,
-                                   )
+            parameter_searcher.search(recommender_input_args,
+                                      recommender_input_args_last_test=recommender_input_args_last_test,
+                                      fit_hyperparameters_values={},
+                                      output_folder_path=output_folder_path,
+                                      output_file_name_root=output_file_name_root,
+                                      resume_from_saved=resume_from_saved,
+                                      save_model=save_model,
+                                      evaluate_on_test=evaluate_on_test,
+                                      )
 
             return
 
@@ -387,17 +387,17 @@ def run_search_collaborative(recommender_class, URM_train, URM_train_last_test=N
             recommender_input_args_last_test = None
 
         # Final step, after the hyperparameter range has been defined for each type of algorithm
-        parameterSearch.search(recommender_input_args,
-                               parameter_search_space=hyperparameters_range_dictionary,
-                               n_cases=n_cases,
-                               n_random_starts=n_random_starts,
-                               resume_from_saved=resume_from_saved,
-                               save_model=save_model,
-                               evaluate_on_test=evaluate_on_test,
-                               output_folder_path=output_folder_path,
-                               output_file_name_root=output_file_name_root,
-                               metric_to_optimize=metric_to_optimize,
-                               recommender_input_args_last_test=recommender_input_args_last_test)
+        parameter_searcher.search(recommender_input_args,
+                                  parameter_search_space=hyperparameters_range_dictionary,
+                                  n_cases=n_cases,
+                                  n_random_starts=n_random_starts,
+                                  resume_from_saved=resume_from_saved,
+                                  save_model=save_model,
+                                  evaluate_on_test=evaluate_on_test,
+                                  output_folder_path=output_folder_path,
+                                  output_file_name_root=output_file_name_root,
+                                  metric_to_optimize=metric_to_optimize,
+                                  recommender_input_args_last_test=recommender_input_args_last_test)
 
     except Exception as e:
 

@@ -5,9 +5,10 @@
 import os
 
 from .neumf_dataset import NeuMFDataset
-from ..data_manager import IncrementalSparseMatrix
-from ..data_manager.split_functions.split_train_validation import split_train_validation_leave_one_out_user_wise
-from ..data_manager.load_and_save_data import save_data_dict_zip, load_data_dict_zip
+from baserec.data_manager import IncrementalSparseMatrix
+from baserec.data_manager.split_functions.split_train_validation import split_train_validation_leave_one_out_user_wise
+from baserec.data_manager.load_and_save_data import save_data_dict_zip, load_data_dict_zip
+from baserec.base.recommender_utils import reshapeSparse
 
 
 class PinterestICCVReader(object):
@@ -15,7 +16,7 @@ class PinterestICCVReader(object):
     URM_DICT = {}
     ICM_DICT = {}
 
-    def __init__(self, pre_splitted_path):
+    def __init__(self, dataset_path, pre_splitted_path, ):
 
         super(PinterestICCVReader, self).__init__()
 
@@ -40,14 +41,12 @@ class PinterestICCVReader(object):
             # Ensure file is loaded as matrix
             NeuMFDataset.load_rating_file_as_list = NeuMFDataset.load_rating_file_as_matrix
 
-            dataset = NeuMFDataset("Conferences/WWW/NeuMF_github/Data/pinterest-20")
+            dataset = NeuMFDataset(dataset_path + "pinterest-20")
 
             URM_train_original, URM_test = dataset.trainMatrix, dataset.testRatings
 
             URM_train_original = URM_train_original.tocsr()
             URM_test = URM_test.tocsr()
-
-            from Base.Recommender_utils import reshapeSparse
 
             shape = (max(URM_train_original.shape[0], URM_test.shape[0]),
                      max(URM_train_original.shape[1], URM_test.shape[1]))

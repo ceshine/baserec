@@ -8,9 +8,6 @@ class NeuMFDataset(object):
     '''
 
     def __init__(self, path):
-        '''
-        Constructor
-        '''
         self.trainMatrix = self.load_rating_file_as_matrix(path + ".train.rating")
         self.testRatings = self.load_rating_file_as_list(path + ".test.rating")
         self.testNegatives = self.load_negative_file(path + ".test.negative")
@@ -22,7 +19,7 @@ class NeuMFDataset(object):
         ratingList = []
         with open(filename, "r") as f:
             line = f.readline()
-            while line != None and line != "":
+            while line is not None and line != "":
                 arr = line.split("\t")
                 user, item = int(arr[0]), int(arr[1])
                 ratingList.append([user, item])
@@ -33,7 +30,7 @@ class NeuMFDataset(object):
         negativeList = []
         with open(filename, "r") as f:
             line = f.readline()
-            while line != None and line != "":
+            while line is not None and line != "":
                 arr = line.split("\t")
                 negatives = []
                 for x in arr[1:]:
@@ -58,10 +55,10 @@ class NeuMFDataset(object):
                 num_items = max(num_items, i)
                 line = f.readline()
         # Construct matrix
-        mat = sp.dok_matrix((num_users+1, num_items+1), dtype=np.float32)
+        mat = sp.dok_matrix((num_users + 1, num_items + 1), dtype=np.float32)
         with open(filename, "r") as f:
             line = f.readline()
-            while line != None and line != "":
+            while line is not None and line != "":
                 arr = line.split("\t")
                 user, item, rating = int(arr[0]), int(arr[1]), float(arr[2])
                 if (rating > 0):

@@ -1,16 +1,18 @@
 """
 @author: Maurizio Ferrari Dacrema & Ceshine Lee
 """
-
-import pandas as pd
-import numpy as np
 import os
-from Base.DataIO import DataIO
-from Utils.seconds_to_biggest_unit import seconds_to_biggest_unit
-from Recommender_import_list import *
 import re
 import numbers
 from functools import partial
+
+import pandas as pd
+import numpy as np
+
+from baserec.base.data_io import DataIO
+from .seconds_to_biggest_unit import seconds_to_biggest_unit
+from baserec.base.non_personalized_recommenders import TopPop, Random
+from baserec.ease_r import EASE_R_Recommender
 
 
 def _get_printable_recommender_name(RECOMMENDER_NAME):
@@ -94,51 +96,51 @@ def _get_algorithm_file_name_list(algorithm_list,
         algorithm_file_name = algorithm.RECOMMENDER_NAME
 
         # If KNN collaborative, expand similarity tipe but put no feature matrix
-        if algorithm in [ItemKNNCFRecommender,
-                         UserKNNCFRecommender]:
+        # if algorithm in [ItemKNNCFRecommender,
+        #                  UserKNNCFRecommender]:
 
-            this_algorithm_data_list = _get_algorithm_similarity_and_feature_combinations(algorithm, algorithm_row_label,
-                                                                                          algorithm_file_name,
-                                                                                          KNN_similarity_list,
-                                                                                          [])
+        #     this_algorithm_data_list = _get_algorithm_similarity_and_feature_combinations(algorithm, algorithm_row_label,
+        #                                                                                   algorithm_file_name,
+        #                                                                                   KNN_similarity_list,
+        #                                                                                   [])
 
-            algorithm_data_to_print_list.extend(this_algorithm_data_list)
+        #     algorithm_data_to_print_list.extend(this_algorithm_data_list)
 
         # If KNN item content based or hybrid item based, expand similarity type and ICM names
-        elif algorithm in [ItemKNNCBFRecommender,
-                           ItemKNN_CFCBF_Hybrid_Recommender,
-                           # ItemKNNCBF_FW_Recommender
-                           ]:
+        # elif algorithm in [ItemKNNCBFRecommender,
+        #                    ItemKNN_CFCBF_Hybrid_Recommender,
+        #                    # ItemKNNCBF_FW_Recommender
+        #                    ]:
 
-            if ICM_names_list is not None:
-                this_algorithm_data_list = _get_algorithm_similarity_and_feature_combinations(algorithm, algorithm_row_label,
-                                                                                              algorithm_file_name,
-                                                                                              KNN_similarity_list,
-                                                                                              ICM_names_list)
+        #     if ICM_names_list is not None:
+        #         this_algorithm_data_list = _get_algorithm_similarity_and_feature_combinations(algorithm, algorithm_row_label,
+        #                                                                                       algorithm_file_name,
+        #                                                                                       KNN_similarity_list,
+        #                                                                                       ICM_names_list)
 
-                algorithm_data_to_print_list.extend(this_algorithm_data_list)
+        #         algorithm_data_to_print_list.extend(this_algorithm_data_list)
 
         # If KNN user content based or hybrid user based, expand similarity type and UCM names
-        elif algorithm in [UserKNNCBFRecommender,
-                           UserKNN_CFCBF_Hybrid_Recommender,
-                           # UserKNNCBF_FW_Recommender
-                           ]:
+        # elif algorithm in [UserKNNCBFRecommender,
+        #                    UserKNN_CFCBF_Hybrid_Recommender,
+        #                    # UserKNNCBF_FW_Recommender
+        #                    ]:
 
-            if UCM_names_list is not None:
-                this_algorithm_data_list = _get_algorithm_similarity_and_feature_combinations(algorithm, algorithm_row_label,
-                                                                                              algorithm_file_name,
-                                                                                              KNN_similarity_list,
-                                                                                              UCM_names_list)
+        #     if UCM_names_list is not None:
+        #         this_algorithm_data_list = _get_algorithm_similarity_and_feature_combinations(algorithm, algorithm_row_label,
+        #                                                                                       algorithm_file_name,
+        #                                                                                       KNN_similarity_list,
+        #                                                                                       UCM_names_list)
 
-                algorithm_data_to_print_list.extend(this_algorithm_data_list)
+        #         algorithm_data_to_print_list.extend(this_algorithm_data_list)
 
-        else:
+        # else:
 
-            algorithm_data_to_print_list.append({
-                "algorithm": algorithm,
-                "algorithm_row_label": algorithm_row_label,
-                "algorithm_file_name": algorithm_file_name,
-            })
+        algorithm_data_to_print_list.append({
+            "algorithm": algorithm,
+            "algorithm_row_label": algorithm_row_label,
+            "algorithm_file_name": algorithm_file_name,
+        })
 
     return algorithm_data_to_print_list
 
@@ -304,10 +306,10 @@ def _print_latex_hyperparameters_from_dataframe(hyperparameters_dataframe, hyper
     latex_code = hyperparameters_dataframe.to_latex(index=True,
                                                     multirow=True,
                                                     escape=False,
-                                                    column_format="ll|" + "c"*n_datasets)
+                                                    column_format="ll|" + "c" * n_datasets)
 
     # Replace cline with midrule
-    latex_code = latex_code.replace("\\cline{{1-{}}}".format(n_datasets+2), "\\midrule")
+    latex_code = latex_code.replace("\\cline{{1-{}}}".format(n_datasets + 2), "\\midrule")
 
     # Also to_latex adds extra empty header row when index has a name, known BUG
     # https://github.com/pandas-dev/pandas/issues/26111
@@ -416,26 +418,27 @@ def generate_latex_hyperparameters(result_folder_path,
     if split_per_algorithm_type:
 
         algorithm_type_group = {
-            "KNN": [UserKNNCFRecommender,
-                    ItemKNNCFRecommender,
-                    ],
-            "ML_graph": [P3alphaRecommender,
-                         RP3betaRecommender,
-                         EASE_R_Recommender,
-                         SLIM_BPR_Cython,
-                         SLIMElasticNetRecommender,
-                         MatrixFactorization_BPR_Cython,
-                         MatrixFactorization_FunkSVD_Cython,
-                         PureSVDRecommender,
-                         NMFRecommender,
-                         IALSRecommender,
-                         ],
-            "CBF": [ItemKNNCBFRecommender,
-                    UserKNNCBFRecommender,
-                    ],
-            "CFCBF": [ItemKNN_CFCBF_Hybrid_Recommender,
-                      UserKNN_CFCBF_Hybrid_Recommender,
-                      ],
+            # "KNN": [UserKNNCFRecommender,
+            #         ItemKNNCFRecommender,
+            #         ],
+            "ML_graph": [
+                # P3alphaRecommender,
+                # RP3betaRecommender,
+                EASE_R_Recommender,
+                # SLIM_BPR_Cython,
+                # SLIMElasticNetRecommender,
+                # MatrixFactorization_BPR_Cython,
+                # MatrixFactorization_FunkSVD_Cython,
+                # PureSVDRecommender,
+                # NMFRecommender,
+                # IALSRecommender,
+            ],
+            # "CBF": [ItemKNNCBFRecommender,
+            #         UserKNNCBFRecommender,
+            #         ],
+            # "CFCBF": [ItemKNN_CFCBF_Hybrid_Recommender,
+            #           UserKNN_CFCBF_Hybrid_Recommender,
+            #           ],
             "neural": other_algorithm_list,
         }
 
@@ -474,50 +477,50 @@ class ResultFolderLoader(object):
     _DEFAULT_BASE_ALGORITHM_LIST = [
         Random,
         TopPop,
-        None,
-        UserKNNCFRecommender,
-        ItemKNNCFRecommender,
-        P3alphaRecommender,
-        RP3betaRecommender,
+        # None,
+        # UserKNNCFRecommender,
+        # ItemKNNCFRecommender,
+        # P3alphaRecommender,
+        # RP3betaRecommender,
         None,
         EASE_R_Recommender,
-        SLIM_BPR_Cython,
-        SLIMElasticNetRecommender,
+        # SLIM_BPR_Cython,
+        # SLIMElasticNetRecommender,
         # MatrixFactorization_AsySVD_Cython,
-        MatrixFactorization_BPR_Cython,
-        MatrixFactorization_FunkSVD_Cython,
-        PureSVDRecommender,
-        NMFRecommender,
-        IALSRecommender,
-        None,
-        ItemKNNCBFRecommender,
-        UserKNNCBFRecommender,
-        None,
-        ItemKNN_CFCBF_Hybrid_Recommender,
-        UserKNN_CFCBF_Hybrid_Recommender,
+        # MatrixFactorization_BPR_Cython,
+        # MatrixFactorization_FunkSVD_Cython,
+        # PureSVDRecommender,
+        # NMFRecommender,
+        # IALSRecommender,
+        # None,
+        # ItemKNNCBFRecommender,
+        # UserKNNCBFRecommender,
+        # None,
+        # ItemKNN_CFCBF_Hybrid_Recommender,
+        # UserKNN_CFCBF_Hybrid_Recommender,
     ]
 
     # Dictionary used to translate the metric name into Latex column header
     # Metrics whose name is not in this dictionary will be displayed with str(metric_key)
     _METRIC_NAME_TO_LATEX_LABEL_DICT = {
-        "ROC_AUC":   "AUC",
+        "ROC_AUC": "AUC",
         "PRECISION": "PREC",
-        "PRECISION_RECALL_MIN_DEN":  "\\begin{tabular}{@{}c@{}}PREC \\\\ REC\\end{tabular}",
-        "RECALL":   "REC",
-        "MAP":      "MAP",
-        "MRR":      "MRR",
-        "NDCG":     "NDCG",
-        "F1":       "F1",
+        "PRECISION_RECALL_MIN_DEN": "\\begin{tabular}{@{}c@{}}PREC \\\\ REC\\end{tabular}",
+        "RECALL": "REC",
+        "MAP": "MAP",
+        "MRR": "MRR",
+        "NDCG": "NDCG",
+        "F1": "F1",
         "HIT_RATE": "HR",
-        "ARHR":     "ARHR",
-        "NOVELTY":  "Novelty",
-        "DIVERSITY_SIMILARITY":      "\\begin{tabular}{@{}c@{}}Div. \\\\ Similarity\\end{tabular}",
+        "ARHR": "ARHR",
+        "NOVELTY": "Novelty",
+        "DIVERSITY_SIMILARITY": "\\begin{tabular}{@{}c@{}}Div. \\\\ Similarity\\end{tabular}",
         "DIVERSITY_MEAN_INTER_LIST": "\\begin{tabular}{@{}c@{}}Div. \\\\ MIL\\end{tabular}",
-        "DIVERSITY_HERFINDAHL":      "\\begin{tabular}{@{}c@{}}Div. \\\\ HHI\\end{tabular}",
-        "COVERAGE_ITEM":             "\\begin{tabular}{@{}c@{}}Cov. \\\\ Item\\end{tabular}",
-        "COVERAGE_USER":             "\\begin{tabular}{@{}c@{}}Cov. \\\\ User\\end{tabular}",
-        "DIVERSITY_GINI":            "\\begin{tabular}{@{}c@{}}Div. \\\\ Gini\\end{tabular}",
-        "SHANNON_ENTROPY":           "\\begin{tabular}{@{}c@{}}Div. \\\\ Shannon\\end{tabular}",
+        "DIVERSITY_HERFINDAHL": "\\begin{tabular}{@{}c@{}}Div. \\\\ HHI\\end{tabular}",
+        "COVERAGE_ITEM": "\\begin{tabular}{@{}c@{}}Cov. \\\\ Item\\end{tabular}",
+        "COVERAGE_USER": "\\begin{tabular}{@{}c@{}}Cov. \\\\ User\\end{tabular}",
+        "DIVERSITY_GINI": "\\begin{tabular}{@{}c@{}}Div. \\\\ Gini\\end{tabular}",
+        "SHANNON_ENTROPY": "\\begin{tabular}{@{}c@{}}Div. \\\\ Shannon\\end{tabular}",
     }
 
     def __init__(self, folder_path,
@@ -696,15 +699,17 @@ class ResultFolderLoader(object):
 
                 return dataframe_row_series
 
-            dataframe_baselines = dataframe_baselines.apply(partial(_format_result_row_values,
-                                                                    dataframe_threshold_value=dataframe_best_other_alg_value,
-                                                                    n_decimals=n_decimals,
-                                                                    ), axis=1, result_type="broadcast")
+            dataframe_baselines = dataframe_baselines.apply(partial(
+                _format_result_row_values,
+                dataframe_threshold_value=dataframe_best_other_alg_value,
+                n_decimals=n_decimals,
+            ), axis=1, result_type="broadcast")
 
-            dataframe_other_algs = dataframe_other_algs.apply(partial(_format_result_row_values,
-                                                                      dataframe_threshold_value=dataframe_best_baseline_value,
-                                                                      n_decimals=n_decimals,
-                                                                      ), axis=1, result_type="broadcast")
+            dataframe_other_algs = dataframe_other_algs.apply(partial(
+                _format_result_row_values,
+                dataframe_threshold_value=dataframe_best_baseline_value,
+                n_decimals=n_decimals,
+            ), axis=1, result_type="broadcast")
 
             result_dataframe = pd.concat([dataframe_baselines, dataframe_other_algs], ignore_index=False)
 
@@ -716,7 +721,7 @@ class ResultFolderLoader(object):
                                                multicolumn=True,
                                                multicolumn_format="c",
                                                column_format="l|" + \
-                                               "{}|".format("c"*len(metrics_list))*len(cutoffs_list),
+                                               "{}|".format("c" * len(metrics_list)) * len(cutoffs_list),
                                                float_format="{:.4f}".format,
                                                )
 
@@ -793,7 +798,7 @@ class ResultFolderLoader(object):
                     optimal_hyperparameters_test_time = search_metadata["time_on_test_list"][optimal_hyperparameters_index]
 
                 if n_evaluation_users is not None and optimal_hyperparameters_test_time is not None:
-                    value_string = "{:.0f}".format(n_evaluation_users/optimal_hyperparameters_test_time)
+                    value_string = "{:.0f}".format(n_evaluation_users / optimal_hyperparameters_test_time)
                     result_dataframe.loc[algorithm_row_label, "Recommendation Throughput"] = value_string
 
         return result_dataframe
@@ -807,16 +812,18 @@ class ResultFolderLoader(object):
             n_decimals=n_decimals, n_evaluation_users=n_evaluation_users)
         output_file = open(output_file_path, "w")
 
-        result_dataframe.rename(columns={"Recommendation Time": "\\begin{tabular}{@{}c@{}}Recommendation\\\\Time\\end{tabular}",
-                                         "Recommendation Throughput": "\\begin{tabular}{@{}c@{}}Recommendation\\\\Throughput\\end{tabular}"},
-                                inplace=True)
+        result_dataframe.rename(
+            columns={
+                "Recommendation Time": "\\begin{tabular}{@{}c@{}}Recommendation\\\\Time\\end{tabular}",
+                "Recommendation Throughput": "\\begin{tabular}{@{}c@{}}Recommendation\\\\Throughput\\end{tabular}"},
+            inplace=True)
 
         result_dataframe.fillna("-", inplace=True)
 
         n_columns = len(result_dataframe.columns)
         latex_code = result_dataframe.to_latex(index=True,
                                                escape=False,  # do not automatically escape special characters
-                                               column_format="l|" + "r"*n_columns + "|",
+                                               column_format="l|" + "r" * n_columns + "|",
                                                float_format="{:.4f}".format,
                                                )
 
