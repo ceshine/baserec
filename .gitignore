@@ -4,3 +4,8 @@ result_experiments/*
 .mypy_cache/
 .pytest_cache/
 .vscode/
+*.c
+*.so
+data/
+*.egg-info/
+build/

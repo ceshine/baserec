@@ -1,4 +1,27 @@
-from distutils.core import setup
+try:
+    from setuptools import setup
+    from setuptools import Extension
+except ImportError:
+    from distutils.core import setup
+    from distutils.extension import Extension
+
+import numpy
+from Cython.Build import cythonize
+
+subfolder_to_compile_dict = {
+    # "MatrixFactorization",
+    "baserec.base.similarity.compute_similarity_cython": "baserec/base/similarity/*.pyx",
+    # "SLIM_BPR",
+}
+
+ext_modules = [
+    Extension(
+        name,
+        [filepath],
+        extra_compile_args=['-O2'],
+        include_dirs=[numpy.get_include(), ],
+    ) for name, filepath in subfolder_to_compile_dict.items()
+]
 
 setup(
     name='BaseRecommenders',
@@ -31,4 +54,5 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8'
     ],
+    ext_modules=cythonize(ext_modules),
 )
