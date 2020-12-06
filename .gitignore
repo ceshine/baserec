@@ -1,0 +1,6 @@
+__pycache__
+*.pth
+result_experiments/*
+.mypy_cache/
+.pytest_cache/
+.vscode/
