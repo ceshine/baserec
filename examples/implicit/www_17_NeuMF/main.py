@@ -8,12 +8,12 @@ from functools import partial
 import typer
 import numpy as np
 
-from baserec import TopPop, Random, EASE_R_Recommender
+from baserec import TopPop, Random, EASE_R_Recommender, IALSRecommender
 from baserec.utils.assertions_on_data_for_experiments import assert_implicit_data, assert_disjoint_matrices
 from baserec.utils.plot_popularity import plot_popularity_bias, save_popularity_statistics
 from baserec.base.evaluation.evaluator import EvaluatorNegativeItemSample
 from baserec.parameter_tuning.run_parameter_search import run_search_collaborative
-from baserec.utils.result_folder_loader import ResultFolderLoader, generate_latex_hyperparameters
+from baserec.utils.result_folder_loader import ResultFolderLoader
 
 from dataset_readers import Movielens1MReader, PinterestICCVReader
 
@@ -56,7 +56,8 @@ def read_data_split_and_search(dataset_name, dataset_path):
     collaborative_algorithm_list = [
         Random,
         TopPop,
-        EASE_R_Recommender
+        EASE_R_Recommender,
+        IALSRecommender
     ]
 
     metric_to_optimize = "HIT_RATE"

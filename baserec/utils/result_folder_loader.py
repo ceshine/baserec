@@ -13,6 +13,7 @@ from baserec.base.data_io import DataIO
 from .seconds_to_biggest_unit import seconds_to_biggest_unit
 from baserec.base.non_personalized_recommenders import TopPop, Random
 from baserec.ease_r import EASE_R_Recommender
+from baserec.matrix_factorization import IALSRecommender
 
 
 def _get_printable_recommender_name(RECOMMENDER_NAME):
@@ -431,7 +432,7 @@ def generate_latex_hyperparameters(result_folder_path,
                 # MatrixFactorization_FunkSVD_Cython,
                 # PureSVDRecommender,
                 # NMFRecommender,
-                # IALSRecommender,
+                IALSRecommender,
             ],
             # "CBF": [ItemKNNCBFRecommender,
             #         UserKNNCBFRecommender,
@@ -491,7 +492,7 @@ class ResultFolderLoader(object):
         # MatrixFactorization_FunkSVD_Cython,
         # PureSVDRecommender,
         # NMFRecommender,
-        # IALSRecommender,
+        IALSRecommender,
         # None,
         # ItemKNNCBFRecommender,
         # UserKNNCBFRecommender,

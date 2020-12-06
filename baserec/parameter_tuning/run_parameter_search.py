@@ -14,9 +14,10 @@ from skopt.space import Real, Integer, Categorical
 ##########                  PURE COLLABORATIVE              ##########
 ##########                                                  ##########
 ######################################################################
-from ..base.non_personalized_recommenders import TopPop, Random, GlobalEffects
+from baserec.base.non_personalized_recommenders import TopPop, Random, GlobalEffects
 
-from ..ease_r import EASE_R_Recommender
+from baserec.ease_r import EASE_R_Recommender
+from baserec.matrix_factorization import IALSRecommender
 
 ######################################################################
 ##########                                                  ##########
@@ -76,12 +77,13 @@ def run_search_collaborative(recommender_class, URM_train, URM_train_last_test=N
     if not os.path.exists(output_folder_path):
         os.makedirs(output_folder_path)
 
-    # earlystopping_keywargs = {"validation_every_n": 5,
-    #                           "stop_on_validation": True,
-    #                           "evaluator_object": evaluator_validation_earlystopping,
-    #                           "lower_validations_allowed": 5,
-    #                           "validation_metric": metric_to_optimize,
-    #                           }
+    earlystopping_keywargs = {
+        "validation_every_n": 5,
+        "stop_on_validation": True,
+        "evaluator_object": evaluator_validation_earlystopping,
+        "lower_validations_allowed": 5,
+        "validation_metric": metric_to_optimize,
+    }
 
     URM_train = URM_train.copy()
 
@@ -277,21 +279,21 @@ def run_search_collaborative(recommender_class, URM_train, URM_train_last_test=N
 
         ##########################################################################################################
 
-        # if recommender_class is IALSRecommender:
+        if recommender_class is IALSRecommender:
 
-        #     hyperparameters_range_dictionary = {}
-        #     hyperparameters_range_dictionary["num_factors"] = Integer(1, 200)
-        #     hyperparameters_range_dictionary["confidence_scaling"] = Categorical(["linear", "log"])
-        #     hyperparameters_range_dictionary["alpha"] = Real(low=1e-3, high=50.0, prior='log-uniform')
-        #     hyperparameters_range_dictionary["epsilon"] = Real(low=1e-3, high=10.0, prior='log-uniform')
-        #     hyperparameters_range_dictionary["reg"] = Real(low=1e-5, high=1e-2, prior='log-uniform')
+            hyperparameters_range_dictionary = {}
+            hyperparameters_range_dictionary["num_factors"] = Integer(1, 200)
+            hyperparameters_range_dictionary["confidence_scaling"] = Categorical(["linear", "log"])
+            hyperparameters_range_dictionary["alpha"] = Real(low=1e-3, high=50.0, prior='log-uniform')
+            hyperparameters_range_dictionary["epsilon"] = Real(low=1e-3, high=10.0, prior='log-uniform')
+            hyperparameters_range_dictionary["reg"] = Real(low=1e-5, high=1e-2, prior='log-uniform')
 
-        #     recommender_input_args = SearchInputRecommenderArgs(
-        #         CONSTRUCTOR_POSITIONAL_ARGS=[URM_train],
-        #         CONSTRUCTOR_KEYWORD_ARGS={},
-        #         FIT_POSITIONAL_ARGS=[],
-        #         FIT_KEYWORD_ARGS=earlystopping_keywargs
-        #     )
+            recommender_input_args = SearchInputRecommenderArgs(
+                CONSTRUCTOR_POSITIONAL_ARGS=[URM_train],
+                CONSTRUCTOR_KEYWORD_ARGS={},
+                FIT_POSITIONAL_ARGS=[],
+                # FIT_KEYWORD_ARGS=earlystopping_keywargs
+            )
 
         ##########################################################################################################
 

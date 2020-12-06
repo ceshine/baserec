@@ -100,9 +100,10 @@ class SearchSingleCase(SearchAbstractClass):
             self._objective_function(fit_hyperparameters_values)
 
         if self.n_loaded_counter < self.model_counter:
-            self._write_log("{}: Search complete. Best config is {}: {}\n".format(self.ALGORITHM_NAME,
-                                                                                  self.metadata_dict["hyperparameters_best_index"],
-                                                                                  self.metadata_dict["hyperparameters_best"]))
+            self._write_log("{}: Search complete. Best config is {}: {}\n".format(
+                self.ALGORITHM_NAME,
+                self.metadata_dict["hyperparameters_best_index"],
+                self.metadata_dict["hyperparameters_best"]))
 
         if self.recommender_input_args_last_test is not None:
             self._evaluate_on_test_with_data_last()

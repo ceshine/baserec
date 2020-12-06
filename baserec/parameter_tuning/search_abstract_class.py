@@ -68,7 +68,7 @@ def _compute_avg_time_non_none_values(data_list):
     total_value = sum([value if value is not None else 0.0 for value in data_list])
 
     return total_value, \
-        total_value/non_none_values if non_none_values != 0 else 0.0
+        total_value / non_none_values if non_none_values != 0 else 0.0
 
 
 def get_result_string_evaluate_on_validation(results_run_single_cutoff, n_decimals=7):
@@ -181,26 +181,26 @@ class SearchAbstractClass(object):
 
         self.metadata_dict = {"algorithm_name_search": self.ALGORITHM_NAME,
                               "algorithm_name_recommender": self.recommender_class.RECOMMENDER_NAME,
-                              "exception_list": [None]*n_cases,
+                              "exception_list": [None] * n_cases,
 
-                              "hyperparameters_list": [None]*n_cases,
+                              "hyperparameters_list": [None] * n_cases,
                               "hyperparameters_best": None,
                               "hyperparameters_best_index": None,
 
-                              "result_on_validation_list": [None]*n_cases,
+                              "result_on_validation_list": [None] * n_cases,
                               "result_on_validation_best": None,
-                              "result_on_test_list": [None]*n_cases,
+                              "result_on_test_list": [None] * n_cases,
                               "result_on_test_best": None,
 
-                              "time_on_train_list": [None]*n_cases,
+                              "time_on_train_list": [None] * n_cases,
                               "time_on_train_total": 0.0,
                               "time_on_train_avg": 0.0,
 
-                              "time_on_validation_list": [None]*n_cases,
+                              "time_on_validation_list": [None] * n_cases,
                               "time_on_validation_total": 0.0,
                               "time_on_validation_avg": 0.0,
 
-                              "time_on_test_list": [None]*n_cases,
+                              "time_on_test_list": [None] * n_cases,
                               "time_on_test_total": 0.0,
                               "time_on_test_avg": 0.0,
 
@@ -384,10 +384,11 @@ class SearchAbstractClass(object):
                     result_dict_test, _, evaluation_test_time = self._evaluate_on_test(
                         recommender_instance, current_fit_parameters_dict, print_log=True)
 
-                self._write_log("{}: Config {} is suboptimal. Config: {} - results: {}\n".format(self.ALGORITHM_NAME,
-                                                                                                 self.model_counter,
-                                                                                                 current_fit_parameters_dict,
-                                                                                                 result_string))
+                self._write_log("{}: Config {} is suboptimal. Config: {} - results: {}\n".format(
+                    self.ALGORITHM_NAME,
+                    self.model_counter,
+                    current_fit_parameters_dict,
+                    result_string))
 
             if current_result >= self.INVALID_CONFIG_VALUE:
                 self._write_log("{}: WARNING! Config {} returned a value equal or worse than the default value to be assigned to invalid configurations."
