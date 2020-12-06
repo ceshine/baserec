@@ -9,12 +9,13 @@ import typer
 import numpy as np
 
 from baserec import TopPop, Random, EASE_R_Recommender
-from baserec.dataset_readers import Movielens1MReader, PinterestICCVReader
 from baserec.utils.assertions_on_data_for_experiments import assert_implicit_data, assert_disjoint_matrices
 from baserec.utils.plot_popularity import plot_popularity_bias, save_popularity_statistics
 from baserec.base.evaluation.evaluator import EvaluatorNegativeItemSample
 from baserec.parameter_tuning.run_parameter_search import run_search_collaborative
 from baserec.utils.result_folder_loader import ResultFolderLoader, generate_latex_hyperparameters
+
+from dataset_readers import Movielens1MReader, PinterestICCVReader
 
 CONFERENCE_NAME = "WWW"
 

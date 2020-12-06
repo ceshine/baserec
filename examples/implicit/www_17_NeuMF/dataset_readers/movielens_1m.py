@@ -5,10 +5,10 @@
 import os
 
 from .neumf_dataset import NeuMFDataset
-from ..data_manager import IncrementalSparseMatrix
-from ..data_manager.split_functions.split_train_validation import split_train_validation_leave_one_out_user_wise
-from ..data_manager.load_and_save_data import save_data_dict_zip, load_data_dict_zip
-from ..base.recommender_utils import reshapeSparse
+from baserec.data_manager import IncrementalSparseMatrix
+from baserec.data_manager.split_functions.split_train_validation import split_train_validation_leave_one_out_user_wise
+from baserec.data_manager.load_and_save_data import save_data_dict_zip, load_data_dict_zip
+from baserec.base.recommender_utils import reshapeSparse
 
 
 class Movielens1MReader(object):
