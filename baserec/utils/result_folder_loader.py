@@ -15,6 +15,7 @@ from baserec.base.non_personalized_recommenders import TopPop, Random
 from baserec.ease_r import EASE_R_Recommender
 from baserec.matrix_factorization import IALSRecommender
 from baserec.slim_bpr import SlimBprCython
+from baserec.knn import ItemKNNCFRecommender, UserKNNCFRecommender
 
 
 def _get_printable_recommender_name(RECOMMENDER_NAME):
@@ -98,15 +99,16 @@ def _get_algorithm_file_name_list(algorithm_list,
         algorithm_file_name = algorithm.RECOMMENDER_NAME
 
         # If KNN collaborative, expand similarity tipe but put no feature matrix
-        # if algorithm in [ItemKNNCFRecommender,
-        #                  UserKNNCFRecommender]:
+        if algorithm in [ItemKNNCFRecommender,
+                         UserKNNCFRecommender]:
 
-        #     this_algorithm_data_list = _get_algorithm_similarity_and_feature_combinations(algorithm, algorithm_row_label,
-        #                                                                                   algorithm_file_name,
-        #                                                                                   KNN_similarity_list,
-        #                                                                                   [])
+            this_algorithm_data_list = _get_algorithm_similarity_and_feature_combinations(
+                algorithm, algorithm_row_label,
+                algorithm_file_name,
+                KNN_similarity_list,
+                [])
 
-        #     algorithm_data_to_print_list.extend(this_algorithm_data_list)
+            algorithm_data_to_print_list.extend(this_algorithm_data_list)
 
         # If KNN item content based or hybrid item based, expand similarity type and ICM names
         # elif algorithm in [ItemKNNCBFRecommender,
@@ -136,13 +138,12 @@ def _get_algorithm_file_name_list(algorithm_list,
 
         #         algorithm_data_to_print_list.extend(this_algorithm_data_list)
 
-        # else:
-
-        algorithm_data_to_print_list.append({
-            "algorithm": algorithm,
-            "algorithm_row_label": algorithm_row_label,
-            "algorithm_file_name": algorithm_file_name,
-        })
+        else:
+            algorithm_data_to_print_list.append({
+                "algorithm": algorithm,
+                "algorithm_row_label": algorithm_row_label,
+                "algorithm_file_name": algorithm_file_name,
+            })
 
     return algorithm_data_to_print_list
 
@@ -420,14 +421,14 @@ def generate_latex_hyperparameters(result_folder_path,
     if split_per_algorithm_type:
 
         algorithm_type_group = {
-            # "KNN": [UserKNNCFRecommender,
-            #         ItemKNNCFRecommender,
-            #         ],
+            "KNN": [UserKNNCFRecommender,
+                    ItemKNNCFRecommender,
+                    ],
             "ML_graph": [
                 # P3alphaRecommender,
                 # RP3betaRecommender,
                 EASE_R_Recommender,
-                # SLIM_BPR_Cython,
+                SlimBprCython,
                 # SLIMElasticNetRecommender,
                 # MatrixFactorization_BPR_Cython,
                 # MatrixFactorization_FunkSVD_Cython,
@@ -479,9 +480,9 @@ class ResultFolderLoader(object):
     _DEFAULT_BASE_ALGORITHM_LIST = [
         Random,
         TopPop,
-        # None,
-        # UserKNNCFRecommender,
-        # ItemKNNCFRecommender,
+        None,
+        UserKNNCFRecommender,
+        ItemKNNCFRecommender,
         # P3alphaRecommender,
         # RP3betaRecommender,
         None,

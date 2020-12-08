@@ -19,6 +19,7 @@ from baserec.base.non_personalized_recommenders import TopPop, Random, GlobalEff
 from baserec.ease_r import EASE_R_Recommender
 from baserec.matrix_factorization import IALSRecommender
 from baserec.slim_bpr import SlimBprCython
+from baserec.knn import ItemKNNCFRecommender, UserKNNCFRecommender
 
 ######################################################################
 ##########                                                  ##########
@@ -44,6 +45,64 @@ from baserec.slim_bpr import SlimBprCython
 from .search_bayesian_skopt import SearchBayesianSkopt
 from .search_single_case import SearchSingleCase
 from .search_abstract_class import SearchInputRecommenderArgs
+
+
+def run_KNNRecommender_on_similarity_type(
+        similarity_type, parameter_searcher,
+        parameter_search_space,
+        recommender_input_args,
+        n_cases,
+        n_random_starts,
+        resume_from_saved,
+        save_model,
+        evaluate_on_test,
+        output_folder_path,
+        output_file_name_root,
+        metric_to_optimize,
+        allow_weighting=False,
+        recommender_input_args_last_test=None):
+    original_parameter_search_space = parameter_search_space
+
+    hyperparameters_range_dictionary = {}
+    hyperparameters_range_dictionary["topK"] = Integer(5, 1000)
+    hyperparameters_range_dictionary["shrink"] = Integer(0, 1000)
+    hyperparameters_range_dictionary["similarity"] = Categorical([similarity_type])
+    hyperparameters_range_dictionary["normalize"] = Categorical([True, False])
+
+    is_set_similarity = similarity_type in ["tversky", "dice", "jaccard", "tanimoto"]
+
+    if similarity_type == "asymmetric":
+        hyperparameters_range_dictionary["asymmetric_alpha"] = Real(low=0, high=2, prior='uniform')
+        hyperparameters_range_dictionary["normalize"] = Categorical([True])
+
+    elif similarity_type == "tversky":
+        hyperparameters_range_dictionary["tversky_alpha"] = Real(low=0, high=2, prior='uniform')
+        hyperparameters_range_dictionary["tversky_beta"] = Real(low=0, high=2, prior='uniform')
+        hyperparameters_range_dictionary["normalize"] = Categorical([True])
+
+    elif similarity_type == "euclidean":
+        hyperparameters_range_dictionary["normalize"] = Categorical([True, False])
+        hyperparameters_range_dictionary["normalize_avg_row"] = Categorical([True, False])
+        hyperparameters_range_dictionary["similarity_from_distance_mode"] = Categorical(["lin", "log", "exp"])
+
+    if not is_set_similarity:
+
+        if allow_weighting:
+            hyperparameters_range_dictionary["feature_weighting"] = Categorical(["none", "BM25", "TF-IDF"])
+
+    local_parameter_search_space = {**hyperparameters_range_dictionary, **original_parameter_search_space}
+
+    parameter_searcher.search(recommender_input_args,
+                              parameter_search_space=local_parameter_search_space,
+                              n_cases=n_cases,
+                              n_random_starts=n_random_starts,
+                              resume_from_saved=resume_from_saved,
+                              save_model=save_model,
+                              evaluate_on_test=evaluate_on_test,
+                              output_folder_path=output_folder_path,
+                              output_file_name_root=output_file_name_root + "_" + similarity_type,
+                              metric_to_optimize=metric_to_optimize,
+                              recommender_input_args_last_test=recommender_input_args_last_test)
 
 
 def run_search_collaborative(recommender_class, URM_train, URM_train_last_test=None,
@@ -133,52 +192,54 @@ def run_search_collaborative(recommender_class, URM_train, URM_train_last_test=N
 
         ##########################################################################################################
 
-        # if recommender_class in [ItemKNNCFRecommender, UserKNNCFRecommender]:
+        if recommender_class in [ItemKNNCFRecommender, UserKNNCFRecommender]:
 
-        #     if similarity_type_list is None:
-        #         similarity_type_list = ['cosine', 'jaccard', "asymmetric", "dice", "tversky"]
+            if similarity_type_list is None:
+                similarity_type_list = ['cosine', 'jaccard', "asymmetric", "dice", "tversky"]
 
-        #     recommender_input_args = SearchInputRecommenderArgs(
-        #         CONSTRUCTOR_POSITIONAL_ARGS=[URM_train],
-        #         CONSTRUCTOR_KEYWORD_ARGS={},
-        #         FIT_POSITIONAL_ARGS=[],
-        #         FIT_KEYWORD_ARGS={}
-        #     )
+            recommender_input_args = SearchInputRecommenderArgs(
+                CONSTRUCTOR_POSITIONAL_ARGS=[URM_train],
+                CONSTRUCTOR_KEYWORD_ARGS={},
+                FIT_POSITIONAL_ARGS=[],
+                FIT_KEYWORD_ARGS={}
+            )
 
-        #     if URM_train_last_test is not None:
-        #         recommender_input_args_last_test = recommender_input_args.copy()
-        #         recommender_input_args_last_test.CONSTRUCTOR_POSITIONAL_ARGS[0] = URM_train_last_test
-        #     else:
-        #         recommender_input_args_last_test = None
+            if URM_train_last_test is not None:
+                recommender_input_args_last_test = recommender_input_args.copy()
+                recommender_input_args_last_test.CONSTRUCTOR_POSITIONAL_ARGS[0] = URM_train_last_test
+            else:
+                recommender_input_args_last_test = None
 
-        #     run_KNNCFRecommender_on_similarity_type_partial = partial(run_KNNRecommender_on_similarity_type,
-        #                                                               recommender_input_args=recommender_input_args,
-        #                                                               parameter_search_space={},
-        #                                                               parameterSearch=parameterSearch,
-        #                                                               n_cases=n_cases,
-        #                                                               n_random_starts=n_random_starts,
-        #                                                               resume_from_saved=resume_from_saved,
-        #                                                               save_model=save_model,
-        #                                                               evaluate_on_test=evaluate_on_test,
-        #                                                               output_folder_path=output_folder_path,
-        #                                                               output_file_name_root=output_file_name_root,
-        #                                                               metric_to_optimize=metric_to_optimize,
-        #                                                               allow_weighting=allow_weighting,
-        #                                                               recommender_input_args_last_test=recommender_input_args_last_test)
+            run_KNNCFRecommender_on_similarity_type_partial = partial(
+                run_KNNRecommender_on_similarity_type,
+                recommender_input_args=recommender_input_args,
+                parameter_search_space={},
+                parameter_searcher=parameter_searcher,
+                n_cases=n_cases,
+                n_random_starts=n_random_starts,
+                resume_from_saved=resume_from_saved,
+                save_model=save_model,
+                evaluate_on_test=evaluate_on_test,
+                output_folder_path=output_folder_path,
+                output_file_name_root=output_file_name_root,
+                metric_to_optimize=metric_to_optimize,
+                allow_weighting=allow_weighting,
+                recommender_input_args_last_test=recommender_input_args_last_test)
 
-            # if parallelizeKNN:
-            #     pool = multiprocessing.Pool(processes=multiprocessing.cpu_count(), maxtasksperchild=1)
-            #     pool.map(run_KNNCFRecommender_on_similarity_type_partial, similarity_type_list)
+            if parallelizeKNN:
+                pool = multiprocessing.Pool(
+                    processes=os.environ.get("OMP_NUM_THREADS", multiprocessing.cpu_count()),
+                    maxtasksperchild=1)
+                pool.map(run_KNNCFRecommender_on_similarity_type_partial, similarity_type_list)
 
-            #     pool.close()
-            #     pool.join()
+                pool.close()
+                pool.join()
 
-            # else:
+            else:
+                for similarity_type in similarity_type_list:
+                    run_KNNCFRecommender_on_similarity_type_partial(similarity_type)
 
-            #     for similarity_type in similarity_type_list:
-            #         run_KNNCFRecommender_on_similarity_type_partial(similarity_type)
-
-            # return
+            return
 
         ##########################################################################################################
 
@@ -390,17 +451,18 @@ def run_search_collaborative(recommender_class, URM_train, URM_train_last_test=N
             recommender_input_args_last_test = None
 
         # Final step, after the hyperparameter range has been defined for each type of algorithm
-        parameter_searcher.search(recommender_input_args,
-                                  parameter_search_space=hyperparameters_range_dictionary,
-                                  n_cases=n_cases,
-                                  n_random_starts=n_random_starts,
-                                  resume_from_saved=resume_from_saved,
-                                  save_model=save_model,
-                                  evaluate_on_test=evaluate_on_test,
-                                  output_folder_path=output_folder_path,
-                                  output_file_name_root=output_file_name_root,
-                                  metric_to_optimize=metric_to_optimize,
-                                  recommender_input_args_last_test=recommender_input_args_last_test)
+        parameter_searcher.search(
+            recommender_input_args,
+            parameter_search_space=hyperparameters_range_dictionary,
+            n_cases=n_cases,
+            n_random_starts=n_random_starts,
+            resume_from_saved=resume_from_saved,
+            save_model=save_model,
+            evaluate_on_test=evaluate_on_test,
+            output_folder_path=output_folder_path,
+            output_file_name_root=output_file_name_root,
+            metric_to_optimize=metric_to_optimize,
+            recommender_input_args_last_test=recommender_input_args_last_test)
 
     except Exception as e:
 

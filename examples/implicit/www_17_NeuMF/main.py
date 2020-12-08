@@ -8,7 +8,10 @@ from functools import partial
 import typer
 import numpy as np
 
-from baserec import TopPop, Random, EASE_R_Recommender, IALSRecommender, SlimBprCython
+from baserec import (
+    TopPop, Random, EASE_R_Recommender, IALSRecommender,
+    SlimBprCython, ItemKNNCFRecommender, UserKNNCFRecommender
+)
 from baserec.utils.assertions_on_data_for_experiments import assert_implicit_data, assert_disjoint_matrices
 from baserec.utils.plot_popularity import plot_popularity_bias, save_popularity_statistics
 from baserec.base.evaluation.evaluator import EvaluatorNegativeItemSample
@@ -56,6 +59,8 @@ def read_data_split_and_search(dataset_name, dataset_path):
     collaborative_algorithm_list = [
         Random,
         TopPop,
+        ItemKNNCFRecommender,
+        UserKNNCFRecommender,
         EASE_R_Recommender,
         IALSRecommender,
         SlimBprCython
@@ -97,11 +102,13 @@ def read_data_split_and_search(dataset_name, dataset_path):
     file_name = "{}..//{}_".format(result_folder_path,
                                    dataset_name)
 
+    knn_similarity_to_report_list = [
+        "cosine", "dice", "jaccard", "asymmetric", "tversky"]
     result_loader = ResultFolderLoader(
         result_folder_path,
         base_algorithm_list=None,
         other_algorithm_list=[],
-        KNN_similarity_list=[],
+        KNN_similarity_list=knn_similarity_to_report_list,
         ICM_names_list=None,
         UCM_names_list=None)
 
