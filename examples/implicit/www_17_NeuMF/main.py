@@ -8,7 +8,7 @@ from functools import partial
 import typer
 import numpy as np
 
-from baserec import TopPop, Random, EASE_R_Recommender, IALSRecommender
+from baserec import TopPop, Random, EASE_R_Recommender, IALSRecommender, SlimBprCython
 from baserec.utils.assertions_on_data_for_experiments import assert_implicit_data, assert_disjoint_matrices
 from baserec.utils.plot_popularity import plot_popularity_bias, save_popularity_statistics
 from baserec.base.evaluation.evaluator import EvaluatorNegativeItemSample
@@ -57,7 +57,8 @@ def read_data_split_and_search(dataset_name, dataset_path):
         Random,
         TopPop,
         EASE_R_Recommender,
-        IALSRecommender
+        IALSRecommender,
+        SlimBprCython
     ]
 
     metric_to_optimize = "HIT_RATE"

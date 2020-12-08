@@ -11,7 +11,7 @@ from Cython.Build import cythonize
 subfolder_to_compile_dict = {
     # "MatrixFactorization",
     "baserec.base.similarity.compute_similarity_cython": "baserec/base/similarity/*.pyx",
-    # "SLIM_BPR",
+    "baserec.slim_bpr.slim_bpr_cython_epoch": "baserec/slim_bpr/*.pyx",
 }
 
 ext_modules = [

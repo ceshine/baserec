@@ -9,7 +9,7 @@ from enum import Enum
 import numpy as np
 import scipy.sparse as sps
 
-from ...utils.seconds_to_biggest_unit import seconds_to_biggest_unit
+from baserec.utils.seconds_to_biggest_unit import seconds_to_biggest_unit
 from .metrics import (
     roc_auc, precision, precision_recall_min_denominator, recall, MRR, MAP, ndcg, arhr,
     Novelty, Coverage_Item, _Metrics_Object, Coverage_User, GiniDiversity, ShannonEntropy,

@@ -18,6 +18,7 @@ from baserec.base.non_personalized_recommenders import TopPop, Random, GlobalEff
 
 from baserec.ease_r import EASE_R_Recommender
 from baserec.matrix_factorization import IALSRecommender
+from baserec.slim_bpr import SlimBprCython
 
 ######################################################################
 ##########                                                  ##########
@@ -328,25 +329,25 @@ def run_search_collaborative(recommender_class, URM_train, URM_train_last_test=N
 
         #########################################################################################################
 
-        # if recommender_class is SLIM_BPR_Cython:
+        if recommender_class is SlimBprCython:
 
-        #     hyperparameters_range_dictionary = {}
-        #     hyperparameters_range_dictionary["topK"] = Integer(5, 1000)
-        #     hyperparameters_range_dictionary["epochs"] = Categorical([1500])
-        #     hyperparameters_range_dictionary["symmetric"] = Categorical([True, False])
-        #     hyperparameters_range_dictionary["sgd_mode"] = Categorical(["sgd", "adagrad", "adam"])
-        #     hyperparameters_range_dictionary["lambda_i"] = Real(low=1e-5, high=1e-2, prior='log-uniform')
-        #     hyperparameters_range_dictionary["lambda_j"] = Real(low=1e-5, high=1e-2, prior='log-uniform')
-        #     hyperparameters_range_dictionary["learning_rate"] = Real(low=1e-4, high=1e-1, prior='log-uniform')
+            hyperparameters_range_dictionary = {}
+            hyperparameters_range_dictionary["topK"] = Integer(5, 1000)
+            hyperparameters_range_dictionary["epochs"] = Categorical([1500])
+            hyperparameters_range_dictionary["symmetric"] = Categorical([True, False])
+            hyperparameters_range_dictionary["sgd_mode"] = Categorical(["sgd", "adagrad", "adam"])
+            hyperparameters_range_dictionary["lambda_i"] = Real(low=1e-5, high=1e-2, prior='log-uniform')
+            hyperparameters_range_dictionary["lambda_j"] = Real(low=1e-5, high=1e-2, prior='log-uniform')
+            hyperparameters_range_dictionary["learning_rate"] = Real(low=1e-4, high=1e-1, prior='log-uniform')
 
-        #     recommender_input_args = SearchInputRecommenderArgs(
-        #         CONSTRUCTOR_POSITIONAL_ARGS=[URM_train],
-        #         CONSTRUCTOR_KEYWORD_ARGS={},
-        #         FIT_POSITIONAL_ARGS=[],
-        #         FIT_KEYWORD_ARGS={**earlystopping_keywargs,
-        #                           "positive_threshold_BPR": None,
-        #                           'train_with_sparse_weights': None}
-        #     )
+            recommender_input_args = SearchInputRecommenderArgs(
+                CONSTRUCTOR_POSITIONAL_ARGS=[URM_train],
+                CONSTRUCTOR_KEYWORD_ARGS={},
+                FIT_POSITIONAL_ARGS=[],
+                FIT_KEYWORD_ARGS={**earlystopping_keywargs,
+                                  "positive_threshold_BPR": None,
+                                  'train_with_sparse_weights': None}
+            )
 
         ##########################################################################################################
 

@@ -14,6 +14,7 @@ from .seconds_to_biggest_unit import seconds_to_biggest_unit
 from baserec.base.non_personalized_recommenders import TopPop, Random
 from baserec.ease_r import EASE_R_Recommender
 from baserec.matrix_factorization import IALSRecommender
+from baserec.slim_bpr import SlimBprCython
 
 
 def _get_printable_recommender_name(RECOMMENDER_NAME):
@@ -485,7 +486,7 @@ class ResultFolderLoader(object):
         # RP3betaRecommender,
         None,
         EASE_R_Recommender,
-        # SLIM_BPR_Cython,
+        SlimBprCython,
         # SLIMElasticNetRecommender,
         # MatrixFactorization_AsySVD_Cython,
         # MatrixFactorization_BPR_Cython,
