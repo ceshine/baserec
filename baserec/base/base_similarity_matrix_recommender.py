@@ -20,25 +20,26 @@ class BaseSimilarityMatrixRecommender(BaseRecommender):
         self._W_sparse_format_checked = False
 
     def _check_format(self):
-
+        """Display warning if interaction or weight matrix is not in csr format"""
         if not self._URM_train_format_checked:
-
             if self.URM_train.getformat() != "csr":
-                self._print("PERFORMANCE ALERT compute_item_score: {} is not {}, this will significantly slow down the computation.".format(
-                    "URM_train", "csr"))
-
+                self._print(
+                    "PERFORMANCE ALERT compute_item_score: {} is not {}, ".format(
+                        "URM_train", "csr"
+                    ) + "this will significantly slow down the computation."
+                )
             self._URM_train_format_checked = True
 
         if not self._W_sparse_format_checked:
-
             if self.W_sparse.getformat() != "csr":
-                self._print("PERFORMANCE ALERT compute_item_score: {} is not {}, this will significantly slow down the computation.".format(
-                    "W_sparse", "csr"))
-
+                self._print(
+                    "PERFORMANCE ALERT compute_item_score: {} is not {}, ".format(
+                        "W_sparse", "csr"
+                    ) + "this will significantly slow down the computation.")
             self._W_sparse_format_checked = True
 
     def save_model(self, folder_path, file_name=None):
-
+        """Only one parameter — W_sparse — to save."""
         if file_name is None:
             file_name = self.RECOMMENDER_NAME
 
@@ -51,11 +52,12 @@ class BaseSimilarityMatrixRecommender(BaseRecommender):
 
         self._print("Saving complete")
 
-    #########################################################################################################
-    ##########                                                                                     ##########
-    ##########                               COMPUTE ITEM SCORES                                   ##########
-    ##########                                                                                     ##########
-    #########################################################################################################
+
+#########################################################################################################
+##########                                                                                     ##########
+##########                               COMPUTE ITEM SCORES                                   ##########
+##########                                                                                     ##########
+#########################################################################################################
 
 
 class BaseItemSimilarityMatrixRecommender(BaseSimilarityMatrixRecommender):
@@ -72,8 +74,9 @@ class BaseItemSimilarityMatrixRecommender(BaseSimilarityMatrixRecommender):
 
         user_profile_array = self.URM_train[user_id_array]
 
+        # doing R @ W (final shape should be U x I)
         if items_to_compute is not None:
-            item_scores = - np.ones((len(user_id_array), self.URM_train.shape[1]), dtype=np.float32)*np.inf
+            item_scores = - np.ones((len(user_id_array), self.URM_train.shape[1]), dtype=np.float32) * np.inf
             item_scores_all = user_profile_array.dot(self.W_sparse).toarray()
             item_scores[:, items_to_compute] = item_scores_all[:, items_to_compute]
         else:
@@ -97,7 +100,7 @@ class BaseUserSimilarityMatrixRecommender(BaseSimilarityMatrixRecommender):
         user_weights_array = self.W_sparse[user_id_array]
 
         if items_to_compute is not None:
-            item_scores = - np.ones((len(user_id_array), self.URM_train.shape[1]), dtype=np.float32)*np.inf
+            item_scores = - np.ones((len(user_id_array), self.URM_train.shape[1]), dtype=np.float32) * np.inf
             item_scores_all = user_weights_array.dot(self.URM_train).toarray()
             item_scores[:, items_to_compute] = item_scores_all[:, items_to_compute]
         else:

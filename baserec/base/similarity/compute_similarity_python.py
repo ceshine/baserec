@@ -16,7 +16,7 @@ class ComputeSimilarityPython:
                  asymmetric_alpha=0.5, tversky_alpha=1.0, tversky_beta=1.0,
                  similarity="cosine", row_weights=None):
         """
-        Computes the cosine similarity on the columns of dataMatrix
+        Computes the cosine similarity **on the columns** of dataMatrix
         If it is computed on URM=|users|x|items|, pass the URM as is.
         If it is computed on ICM=|items|x|features|, pass the ICM transposed.
         :param dataMatrix:
@@ -34,11 +34,10 @@ class ComputeSimilarityPython:
                             "tversky"       computes Tversky similarity for binary interactions
                             "tanimoto"      computes Tanimoto coefficient for binary interactions
 
-        """
-        """
         Asymmetric Cosine as described in: 
         Aiolli, F. (2013, October). Efficient top-n recommendation for very large scale binary rated datasets. In Proceedings of the 7th ACM conference on Recommender systems (pp. 273-280). ACM.
-        
+
+        # Note from Ceshine: since the similarities are calculated between columns, the asymmetric cosine measure doesn't seem to make sense here?
         """
 
         super().__init__()

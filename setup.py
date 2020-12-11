@@ -1,9 +1,6 @@
-try:
-    from setuptools import setup
-    from setuptools import Extension
-except ImportError:
-    from distutils.core import setup
-    from distutils.extension import Extension
+from setuptools import setup
+from setuptools import Extension
+from setuptools import find_packages
 
 import numpy
 from Cython.Build import cythonize
@@ -24,9 +21,9 @@ ext_modules = [
 ]
 
 setup(
-    name='BaseRecommenders',
+    name='baserec',
     version='0.0.1',
-    packages=['baserec'],
+    packages=find_packages('.'),
     install_requires=[
         'scikit-learn>=0.21.2',
         'pandas>=1.1.4',
