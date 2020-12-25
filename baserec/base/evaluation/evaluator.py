@@ -440,7 +440,31 @@ class EvaluatorHoldout(Evaluator):
 
 
 class EvaluatorNegativeItemSample(Evaluator):
-    """EvaluatorNegativeItemSample"""
+    """Evaluator with Negative Item Sampling
+
+    The EvaluatorNegativeItemSample computes the recommendations by sorting the test items as well as the test_negative items.
+
+    It ensures that each item appears only once even if it is listed in both matrices
+
+    Parameters
+    ----------
+    URM_test_list : 
+        Positive samples
+    URM_test_negative : 
+        Items to rank together with the test items
+    cutoff_list : 
+        List of cutoffs to use
+    min_ratings_per_user : int, optional
+        [TODO: description], by default 1
+    exclude_seen : bool, optional
+        Don't evaluate on seen entries, by default True
+    diversity_object : [TODO: type], optional
+        [TODO: description], by default None
+    ignore_items : Sequence, optional
+        [TODO:description], by default None
+    ignore_users : Sequence, optional
+        [TODO:description], by default None
+    """
 
     EVALUATOR_NAME = "EvaluatorNegativeItemSample"
 
@@ -448,24 +472,11 @@ class EvaluatorNegativeItemSample(Evaluator):
                  diversity_object=None,
                  ignore_items=None,
                  ignore_users=None):
-        """
-
-        The EvaluatorNegativeItemSample computes the recommendations by sorting the test items as well as the test_negative items
-        It ensures that each item appears only once even if it is listed in both matrices
-
-        :param URM_test_list:
-        :param URM_test_negative: Items to rank together with the test items
-        :param cutoff_list:
-        :param min_ratings_per_user:
-        :param exclude_seen:
-        :param diversity_object:
-        :param ignore_items:
-        :param ignore_users:
-        """
-        super(EvaluatorNegativeItemSample, self).__init__(URM_test_list, cutoff_list,
-                                                          diversity_object=diversity_object,
-                                                          min_ratings_per_user=min_ratings_per_user, exclude_seen=exclude_seen,
-                                                          ignore_items=ignore_items, ignore_users=ignore_users)
+        super(EvaluatorNegativeItemSample, self).__init__(
+            URM_test_list, cutoff_list,
+            diversity_object=diversity_object,
+            min_ratings_per_user=min_ratings_per_user, exclude_seen=exclude_seen,
+            ignore_items=ignore_items, ignore_users=ignore_users)
 
         self.URM_items_to_rank = sps.csr_matrix(self.URM_test.copy().astype(
             np.bool)) + sps.csr_matrix(URM_test_negative.copy().astype(np.bool))
@@ -473,6 +484,7 @@ class EvaluatorNegativeItemSample(Evaluator):
         self.URM_items_to_rank.data = np.ones_like(self.URM_items_to_rank.data)
 
     def _get_user_specific_items_to_compute(self, user_id):
+        """Get only items that we are interested in for a specific user."""
 
         start_pos = self.URM_items_to_rank.indptr[user_id]
         end_pos = self.URM_items_to_rank.indptr[user_id + 1]
@@ -483,13 +495,14 @@ class EvaluatorNegativeItemSample(Evaluator):
 
     def _run_evaluation_on_selected_users(self, recommender_object, users_to_evaluate, block_size=None):
 
-        results_dict = _create_empty_metrics_dict(self.cutoff_list,
-                                                  self.n_items, self.n_users,
-                                                  recommender_object.get_URM_train(),
-                                                  self.URM_test,
-                                                  self.ignore_items_ID,
-                                                  self.ignore_users_ID,
-                                                  self.diversity_object)
+        results_dict = _create_empty_metrics_dict(
+            self.cutoff_list,
+            self.n_items, self.n_users,
+            recommender_object.get_URM_train(),
+            self.URM_test,
+            self.ignore_items_ID,
+            self.ignore_users_ID,
+            self.diversity_object)
 
         if self.ignore_items_flag:
             recommender_object.set_items_to_ignore(self.ignore_items_ID)
@@ -508,9 +521,10 @@ class EvaluatorNegativeItemSample(Evaluator):
                 return_scores=True
             )
 
-            results_dict = self._compute_metrics_on_recommendation_list(test_user_batch_array=[test_user],
-                                                                        recommended_items_batch_list=recommended_items,
-                                                                        scores_batch=all_items_predicted_ratings,
-                                                                        results_dict=results_dict)
+            results_dict = self._compute_metrics_on_recommendation_list(
+                test_user_batch_array=[test_user],
+                recommended_items_batch_list=recommended_items,
+                scores_batch=all_items_predicted_ratings,
+                results_dict=results_dict)
 
         return results_dict
