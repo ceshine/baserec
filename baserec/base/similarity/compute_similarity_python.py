@@ -11,35 +11,51 @@ from ..recommender_utils import check_matrix
 
 
 class ComputeSimilarityPython:
+    """Computes the cosine similarity **on the columns** of dataMatrix
+
+    + If it is computed on URM=|users|x|items|, pass the URM as is.
+    + If it is computed on ICM=|items|x|features|, pass the URM transposed.
+
+    Available similarity measures (the `similarity` parameter):
+        + "cosine"        computes Cosine similarity (this is the default)
+        + "adjusted"      computes Adjusted Cosine, removing the average of the users
+        + "asymmetric"    computes Asymmetric Cosine
+        + "pearson"       computes Pearson Correlation, removing the average of the items
+        + "jaccard"       computes Jaccard similarity for binary interactions using Tanimoto
+        + "dice"          computes Dice similarity for binary interactions
+        + "tversky"       computes Tversky similarity for binary interactions
+        + "tanimoto"      computes Tanimoto coefficient for binary interactions
+
+    Asymmetric Cosine as described in:
+        Aiolli, F. (2013, October). Efficient top-n recommendation for very large scale binary rated datasets. In Proceedings of the 7th ACM conference on Recommender systems (pp. 273-280). ACM.
+
+    (Note from Ceshine: since the similarities are calculated between columns, the asymmetric cosine measure doesn't seem to make sense here?)
+
+    Parameters
+    ----------
+    dataMatrix :
+        Numpy matrix
+    topK : int, optional
+        Keep only the Top K entries, by default 100
+    shrink : int, optional
+        The shrinkage parameter helps to avoid overfitting when only few ratings are available, by default 0
+    normalize : bool, optional
+        If True divide the dot product by the product of the norms, by default True
+    asymmetric_alpha : float, optional
+        Coefficient alpha for the asymmetric cosine, by default 0.5
+    tversky_alpha : float, optional
+        tversky_alpha, by default 1.0
+    tversky_beta : float, optional
+        tversky_beta, by default 1.0
+    similarity : str, optional
+        type of similarity measure to use, by default "cosine"
+    row_weights : Sequence, optional
+        Multiply the values in each row by a specified value, by default None
+    """
 
     def __init__(self, dataMatrix, topK=100, shrink=0, normalize=True,
                  asymmetric_alpha=0.5, tversky_alpha=1.0, tversky_beta=1.0,
                  similarity="cosine", row_weights=None):
-        """
-        Computes the cosine similarity **on the columns** of dataMatrix
-        If it is computed on URM=|users|x|items|, pass the URM as is.
-        If it is computed on ICM=|items|x|features|, pass the ICM transposed.
-        :param dataMatrix:
-        :param topK:
-        :param shrink:
-        :param normalize:           If True divide the dot product by the product of the norms
-        :param row_weights:         Multiply the values in each row by a specified value. Array
-        :param asymmetric_alpha     Coefficient alpha for the asymmetric cosine
-        :param similarity:  "cosine"        computes Cosine similarity
-                            "adjusted"      computes Adjusted Cosine, removing the average of the users
-                            "asymmetric"    computes Asymmetric Cosine
-                            "pearson"       computes Pearson Correlation, removing the average of the items
-                            "jaccard"       computes Jaccard similarity for binary interactions using Tanimoto
-                            "dice"          computes Dice similarity for binary interactions
-                            "tversky"       computes Tversky similarity for binary interactions
-                            "tanimoto"      computes Tanimoto coefficient for binary interactions
-
-        Asymmetric Cosine as described in: 
-        Aiolli, F. (2013, October). Efficient top-n recommendation for very large scale binary rated datasets. In Proceedings of the 7th ACM conference on Recommender systems (pp. 273-280). ACM.
-
-        # Note from Ceshine: since the similarities are calculated between columns, the asymmetric cosine measure doesn't seem to make sense here?
-        """
-
         super().__init__()
 
         self.shrink = shrink
@@ -264,6 +280,7 @@ class ComputeSimilarityPython:
                     this_column_weights = this_block_weights[:, col_index_in_block]
 
                 columnIndex = col_index_in_block + start_col_block
+                # Set self-similarity to 0
                 this_column_weights[columnIndex] = 0.0
 
                 # Apply normalization and shrinkage, ensure denominator != 0
@@ -296,7 +313,7 @@ class ComputeSimilarityPython:
                 elif self.shrink != 0:
                     this_column_weights = this_column_weights / self.shrink
 
-                #this_column_weights = this_column_weights.toarray().ravel()
+                # this_column_weights = this_column_weights.toarray().ravel()
 
                 # Sort indices and select TopK
                 # Sorting is done in three steps. Faster then plain np.argsort for higher number of items

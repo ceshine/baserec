@@ -14,7 +14,7 @@ from baserec.utils.seconds_to_biggest_unit import seconds_to_biggest_unit
 
 
 class EASE_R_Recommender(BaseItemSimilarityMatrixRecommender):
-    """ EASE_R_Recommender
+    """EASE_R Recommender
 
         https://arxiv.org/pdf/1905.03375.pdf
 

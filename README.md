@@ -1,6 +1,6 @@
 # Recommender Baselines
 
-[![CircleCI](https://circleci.com/gh/ceshine/baserec/tree/master.svg?style=svg)](https://circleci.com/gh/ceshine/baserec/tree/master)
+[![CircleCI](https://circleci.com/gh/ceshine/baserec/tree/master.svg?style=svg)](https://circleci.com/gh/ceshine/baserec/tree/master) [![Documentation Status](https://readthedocs.org/projects/baserec/badge/?version=latest)](https://baserec.readthedocs.io/en/latest/?badge=latest)
 
 (This is a work in progress)
 
