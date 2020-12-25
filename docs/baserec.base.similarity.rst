@@ -20,14 +20,6 @@ baserec.base.similarity.compute\_similarity\_cython module
    :undoc-members:
    :show-inheritance:
 
-baserec.base.similarity.compute\_similarity\_cython module
-----------------------------------------------------------
-
-.. automodule:: baserec.base.similarity.compute_similarity_cython
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 baserec.base.similarity.compute\_similarity\_euclidean module
 -------------------------------------------------------------
 

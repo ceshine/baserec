@@ -10,7 +10,11 @@ Welcome to Baserec's documentation!
    :maxdepth: 4
    :caption: Contents:
 
-   baserec
+   baserec.base
+   baserec.knn
+   baserec.matrix_factorization
+   baserec.ease_r
+   baserec.utils
 
 
 Indices and tables
